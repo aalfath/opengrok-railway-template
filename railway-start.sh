@@ -39,8 +39,8 @@ fi
 [ "$cpus" -le 8 ] || cpus=8
 
 clamp() { local v=$1 lo=$2 hi=$3; [ "$v" -lt "$lo" ] && v=$lo; [ "$v" -gt "$hi" ] && v=$hi; echo "$v"; }
-web_heap=$(clamp $((mem_mb * 15 / 100)) 64 4096)
-idx_heap=$(clamp $((mem_mb * 18 / 100)) 80 8192)
+web_heap=$(clamp $((mem_mb * 14 / 100)) 56 4096)
+idx_heap=$(clamp $((mem_mb * 20 / 100)) 88 8192)
 rambuf=$(clamp $((idx_heap / 6)) 16 256)
 threads="$cpus"
 
@@ -112,11 +112,16 @@ pids+=("$!")
 og_pid=$!; pids+=("$og_pid")
 
 # ---- watchdog: exit non-zero if a part stops -------------------------------------
+# Keep the web app and the start program alive if memory runs out: the kernel
+# then stops a reindex or a sync worker instead (they retry on the next sync).
+protect() { for p in "$@"; do [ -n "$p" ] && echo -900 > "/proc/$p/oom_score_adj" 2>/dev/null; done; }
+protect "$caddy_pid" "$og_pid" $(pgrep -f /scripts/start.py)
 tomcat_seen=0; waited=0
 while sleep 5; do
   kill -0 "$caddy_pid" 2>/dev/null || { log "Caddy stopped"; kill -TERM "$og_pid" 2>/dev/null; exit 1; }
   kill -0 "$og_pid" 2>/dev/null || { log "OpenGrok start program stopped"; kill -TERM "$caddy_pid" 2>/dev/null; exit 1; }
-  if pgrep -f org.apache.catalina.startup.Bootstrap >/dev/null; then
+  if tc=$(pgrep -f org.apache.catalina.startup.Bootstrap); then
+    [ "$tomcat_seen" = 1 ] || protect $tc $(pgrep -f /scripts/start.py)
     tomcat_seen=1
   elif [ "$tomcat_seen" = 1 ]; then
     log "Tomcat stopped"; kill -TERM "$og_pid" "$caddy_pid" 2>/dev/null; exit 1
