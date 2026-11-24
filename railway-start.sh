@@ -39,8 +39,8 @@ fi
 [ "$cpus" -le 8 ] || cpus=8
 
 clamp() { local v=$1 lo=$2 hi=$3; [ "$v" -lt "$lo" ] && v=$lo; [ "$v" -gt "$hi" ] && v=$hi; echo "$v"; }
-web_heap=$(clamp $((mem_mb * 18 / 100)) 80 4096)
-idx_heap=$(clamp $((mem_mb * 20 / 100)) 96 8192)
+web_heap=$(clamp $((mem_mb * 15 / 100)) 64 4096)
+idx_heap=$(clamp $((mem_mb * 18 / 100)) 80 8192)
 rambuf=$(clamp $((idx_heap / 6)) 16 256)
 threads="$cpus"
 

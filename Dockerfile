@@ -22,6 +22,9 @@ RUN sed -i 's|<Connector port="8080" protocol="HTTP/1.1"|<Connector address="127
  && caddy version
 
 COPY gitconfig /etc/gitconfig
+COPY java-indexer /usr/local/bin/java-indexer
+# opengrok-tools looks for /etc/alternatives/java first (Tomcat uses JAVA_HOME).
+RUN chmod 755 /usr/local/bin/java-indexer && mkdir -p /etc/alternatives && ln -s /usr/local/bin/java-indexer /etc/alternatives/java
 COPY railway-start.sh railway-repos.sh /usr/local/bin/
 RUN chmod 755 /usr/local/bin/railway-start.sh /usr/local/bin/railway-repos.sh && chmod 644 /etc/gitconfig
 
