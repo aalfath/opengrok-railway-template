@@ -39,12 +39,12 @@ fi
 [ "$cpus" -le 8 ] || cpus=8
 
 clamp() { local v=$1 lo=$2 hi=$3; [ "$v" -lt "$lo" ] && v=$lo; [ "$v" -gt "$hi" ] && v=$hi; echo "$v"; }
-web_heap=$(clamp $((mem_mb * 22 / 100)) 96 4096)
-idx_heap=$(clamp $((mem_mb * 26 / 100)) 112 8192)
-rambuf=$(clamp $((idx_heap / 4)) 16 256)
+web_heap=$(clamp $((mem_mb * 18 / 100)) 80 4096)
+idx_heap=$(clamp $((mem_mb * 20 / 100)) 96 8192)
+rambuf=$(clamp $((idx_heap / 6)) 16 256)
 threads="$cpus"
 
-JVM_COMMON="-XX:+UseSerialGC -XX:ActiveProcessorCount=$cpus -Xss512k -XX:MaxMetaspaceSize=96m -XX:ReservedCodeCacheSize=32m -XX:CompressedClassSpaceSize=24m -XX:+ExitOnOutOfMemoryError"
+JVM_COMMON="-XX:+UseSerialGC -XX:ActiveProcessorCount=$cpus -Xss512k -XX:MaxMetaspaceSize=96m -XX:ReservedCodeCacheSize=32m -XX:CompressedClassSpaceSize=24m -XX:MaxDirectMemorySize=32m -XX:+ExitOnOutOfMemoryError"
 [ "$mem_mb" -lt 1500 ] && JVM_COMMON="$JVM_COMMON -XX:TieredStopAtLevel=1"
 
 export CATALINA_OPTS="${OPENGROK_WEB_JAVA_OPTS:--Xms32m -Xmx${web_heap}m $JVM_COMMON}"

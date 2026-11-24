@@ -18,6 +18,7 @@ RUN sed -i 's|<Connector port="8080" protocol="HTTP/1.1"|<Connector address="127
  && ln -s /var/lib/opengrok/src /opengrok/src \
  && ln -s /var/lib/opengrok/data /opengrok/data \
  && ln -s /var/lib/opengrok/etc /opengrok/etc \
+ && mkdir -p /usr/local/tomcat/conf/Catalina/localhost && chown -R appuser:appgroup /usr/local/tomcat/conf/Catalina \
  && caddy version
 
 COPY gitconfig /etc/gitconfig
