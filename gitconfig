@@ -1,0 +1,15 @@
+# Keep git inside a small (0.5 GB) Railway service.
+[pack]
+	threads = 1
+	windowMemory = 64m
+	deltaCacheSize = 16m
+[core]
+	packedGitLimit = 64m
+	packedGitWindowSize = 16m
+	bigFileThreshold = 16m
+[gc]
+	auto = 0
+[safe]
+	directory = *
+[advice]
+	detachedHead = false
